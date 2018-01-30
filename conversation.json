@@ -1,0 +1,171 @@
+[{
+	"id": "e3bfe805.794d08",
+	"type": "watson-conversation-v1",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"workspaceid": "",
+	"multiuser": false,
+	"context": true,
+	"default-endpoint": true,
+	"service-endpoint": "",
+	"x": 317,
+	"y": 214,
+	"wires": [
+		["e6aea03f.6033c"]
+	]
+}, {
+	"id": "e6aea03f.6033c",
+	"type": "switch",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"property": "payload.intents[0].intent",
+	"propertyType": "msg",
+	"rules": [{
+		"t": "eq",
+		"v": "weather",
+		"vt": "str"
+	}, {
+		"t": "eq",
+		"v": "time",
+		"vt": "str"
+	}, {
+		"t": "else"
+	}],
+	"checkall": "true",
+	"outputs": 3,
+	"x": 466,
+	"y": 214,
+	"wires": [
+		["2a5e9a11.482126"],
+		["cd5582f6.5191a"],
+		["2a979aed.1b3a46"]
+	]
+}, {
+	"id": "2a5e9a11.482126",
+	"type": "weather_insights",
+	"z": "a4fd6e64.c1919",
+	"name": "weather",
+	"host": "twcservice.mybluemix.net",
+	"service": "/observations/timeseries.json?hours=23",
+	"geocode": "-23.9678820,-46.3288870",
+	"units": "m",
+	"language": "pt-BR",
+	"x": 633,
+	"y": 165,
+	"wires": [
+		["4fc249ee.be0ec8"]
+	]
+}, {
+	"id": "cd5582f6.5191a",
+	"type": "function",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"func": "msg.payload = {username: 'Isabel',\n                message: new Date(),\n                socketEvent: \"botAnswer\"\n};\nreturn msg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 625,
+	"y": 217,
+	"wires": [
+		["a9ed7596.70c1d8", "b525d785.734c88"]
+	]
+}, {
+	"id": "2a979aed.1b3a46",
+	"type": "function",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"func": "msg.payload = {username: 'Isabel',\n                message: msg.payload.output.text[0],\n                socketEvent: \"botAnswer\"\n};\nreturn msg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 625,
+	"y": 274,
+	"wires": [
+		["a9ed7596.70c1d8", "b525d785.734c88"]
+	]
+}, {
+	"id": "4fc249ee.be0ec8",
+	"type": "function",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"func": "var resp = \"A temperatura em \" + msg.observations[0].obs_name + \" é de \" + msg.observations[0].temp + \" graus. O tempo está \" + msg.observations[0].wx_phrase + \", e a sensação térmica é de \" + msg.observations[0].feels_like + \" graus.\"\nmsg.payload = {username: 'Isabel',\n                message: resp,\n                socketEvent: \"botAnswer\"\n};\nreturn msg;\n",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 793,
+	"y": 165,
+	"wires": [
+		["a9ed7596.70c1d8", "b525d785.734c88"]
+	]
+}, {
+	"id": "77bb3da4.770c94",
+	"type": "link in",
+	"z": "a4fd6e64.c1919",
+	"name": "Chat",
+	"links": ["fb395063.34e65"],
+	"x": 60,
+	"y": 115,
+	"wires": [
+		["dd35d1ce.84f6b"]
+	]
+}, {
+	"id": "a9ed7596.70c1d8",
+	"type": "websocket out",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"server": "264a4844.c1e9f8",
+	"client": "",
+	"x": 1002,
+	"y": 222,
+	"wires": []
+}, {
+	"id": "dd35d1ce.84f6b",
+	"type": "function",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"func": "msg.payload = msg.payload.message;\nreturn msg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 168,
+	"y": 215,
+	"wires": [
+		["e3bfe805.794d08"]
+	]
+}, {
+	"id": "82457b4f.35e368",
+	"type": "watson-text-to-speech",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"lang": "pt-BR",
+	"langhidden": "pt-BR",
+	"langcustom": "NoCustomisationSetting",
+	"langcustomhidden": "",
+	"voice": "pt-BR_IsabelaVoice",
+	"voicehidden": "",
+	"format": "audio/wav",
+	"password": "",
+	"payload-response": true,
+	"default-endpoint": true,
+	"service-endpoint": "https://stream.watsonplatform.net/text-to-speech/api",
+	"x": 1008.5,
+	"y": 354,
+	"wires": [
+		["a9ed7596.70c1d8"]
+	]
+}, {
+	"id": "b525d785.734c88",
+	"type": "function",
+	"z": "a4fd6e64.c1919",
+	"name": "",
+	"func": "msg.payload = msg.payload.message;\nreturn msg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 975.5,
+	"y": 324,
+	"wires": [
+		["82457b4f.35e368"]
+	]
+}, {
+	"id": "264a4844.c1e9f8",
+	"type": "websocket-listener",
+	"z": "",
+	"path": "/ws/chat",
+	"wholemsg": "false"
+}]
